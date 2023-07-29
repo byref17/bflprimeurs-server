@@ -11,15 +11,28 @@ const User = require("../models/User.model");
 const Item = require("../models/Item.model");
 
 const Order = require("../models/Order.model")
+// GET /api/user/:id
+router.get("/user", isAuthenticated, (req, res,) => {
+  const userId = req.payload._id
+
+  User.findById(userId, req.body,)
+    .then((profilUser) => {
+      // Deconstruct the newly created user object to omit the password
+      // We should never expose passwords publicly
+      const { email, societe, _id, telephone, adresse, siret } = profilUser;
+
+      // Create a new object that doesn't expose the password
+      const user = { email, societe, _id, telephone, adresse, siret };
+
+      // Send a json response containing the user object
+      res.status(200).json({ user: user });
+    })
+    .catch(error => res.json(error));
+});
 
 // PUT /api/user/:id
-router.put("/user/:userId", (req, res,) => {
-  const { userId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    res.status(400).json({ message: 'Specified id is not valid' });
-    return;
-  }
+router.put("/user", isAuthenticated, (req, res,) => {
+  const userId = req.payload._id
 
   User.findByIdAndUpdate(userId, req.body, { new: true })
     .then((createdUser) => {
@@ -37,7 +50,10 @@ router.put("/user/:userId", (req, res,) => {
 });
 
 // listing des produits
-
+//
+// GET /items
+// GET /items?family=
+// GET /items?id=1234&id=2345
 router.get('/items', (req, res) => {
 
   //
@@ -46,8 +62,20 @@ router.get('/items', (req, res) => {
   // 3. reponse du server sous forme json
   //
 
+  const query = {}
+
+  // query vaut { family: req.query.family }
+  if (req.query.family) {
+    query.family = req.query.family
+  }
+
+  // query vaut { _id: { $in: id } }
+  if (req.query.id) {
+    query._id = { $in: req.query.id }
+  }
+
   // 2.
-  Item.find({ family: req.query.family })
+  Item.find(query)
     .then(function (itemsFromDb) {
       // 3.
       res.json(itemsFromDb)
