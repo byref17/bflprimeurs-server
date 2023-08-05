@@ -7,6 +7,8 @@ const orderSchema = new Schema(
         items: [
             {
                 itemId: { type: Schema.Types.ObjectId, ref: 'Item' },
+                title: String,
+                colisage: String,
                 quantity: {
                     type: Number,
                     default: 1,

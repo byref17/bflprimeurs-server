@@ -54,7 +54,7 @@ router.put("/user", isAuthenticated, (req, res,) => {
 // GET /items
 // GET /items?family=
 // GET /items?id=1234&id=2345
-router.get('/items', (req, res) => {
+router.get('/items', (req, res, next) => {
 
   //
   // 1. determiner le type d'items: legume, fruit, aromate
@@ -90,7 +90,7 @@ router.get('/items', (req, res) => {
 router.post('/orders', isAuthenticated, (req, res, next) => {
 
   //
-  //  
+  //  req.body:  [ {id: '1234', qty: 1}, ... ]
   //
 
   // [100, 101]
@@ -107,6 +107,8 @@ router.post('/orders', isAuthenticated, (req, res, next) => {
         items: itemsFromDB.map(function (item, i) {
           return ({
             itemId: item._id,
+            title: item.title,
+            colisage: item.colisage,
             quantity: req.body[i].qty,
             prix: item.prix
           })
